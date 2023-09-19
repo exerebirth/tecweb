@@ -16,8 +16,14 @@ if (isset($_GET['numero'])) {
         echo "El número $numero no es múltiplo de 5 y 7.";
     }
 } else {
-    echo "Por favor, proporciona un número como parámetro en la URL.";
+    echo "Por favor, proporciona un número como parámetro en la URL"."<br>";
+    
 }
+include('ciclo-while.php');
+include('secuencias.php');
+include('do-while.php');
+include('Ascii.php');
 ?>
+
 </body>
 </html>
