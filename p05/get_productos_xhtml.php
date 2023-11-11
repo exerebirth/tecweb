@@ -1,62 +1,52 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
-"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es">
+<?php
+if (isset($_GET['tope'])) {
+	$tope = $_GET['tope'];
+} else {
+	die('Parámetro "tope" no detectado...');
+}
 
-	<?php
-	if(isset($_GET['tope']))
-    {
-		$tope = $_GET['tope'];
-    }
-    else
-    {
-        die('Parámetro "tope" no detectado...');
-    }
+if (!empty($tope)) {
+	/** SE CREA EL OBJETO DE CONEXION */
+	@$link = new mysqli('localhost', 'root', '12345678a', 'marketzone');
 
-	if (!empty($tope))
-	{
-		/** SE CREA EL OBJETO DE CONEXION */
-		@$link = new mysqli('localhost', 'root', '12345678a', 'marketzone');	
-	
-
-		/** comprobar la conexión */
-		if ($link->connect_errno) 
-		{
-			die('Falló la conexión: '.$link->connect_error.'<br/>');
-			    /** NOTA: con @ se suprime el Warning para gestionar el error por medio de código */
-		}
-
-		/** Crear una tabla que no devuelve un conjunto de resultados */
-		if ( $result = $link->query("SELECT * FROM productos WHERE unidades <= $tope") )
-		{
-			$row = $result->fetch_all(MYSQLI_ASSOC);
-			/** útil para liberar memoria asociada a un resultado con demasiada información */
-			$result->free();
-
-            foreach($row as $num => $registro) {            // Se recorren tuplas
-                foreach($registro as $key => $value) {      // Se recorren campos
-                    $tupla[$num][$key] = utf8_encode($value);
-                }
-            }
-        }
-
-		$link->close();
+	/** comprobar la conexión */
+	if ($link->connect_errno) {
+		die('Falló la conexión: ' . $link->connect_error . '<br/>');
+		/** NOTA: con @ se suprime el Warning para gestionar el error por medio de código */
 	}
-	?>
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		<title>Producto</title>
-		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-	</head>
-	<body>
-		<h3>PRODUCTO</h3>
 
-		<br/>
-		
-		<?php if( isset($row) ) :            ?>
+	/** Crear una tabla que no devuelve un conjunto de resultados */
+	if ($result = $link->query("SELECT * FROM productos WHERE unidades <= $tope")) {
+		$row = $result->fetch_all(MYSQLI_ASSOC);
+		/** útil para liberar memoria asociada a un resultado con demasiada información */
+		foreach ($row as $num => $registro) {            // Se recorren tuplas
+			foreach ($registro as $key => $value) {      // Se recorren campos
+				$data[$num][$key] = $value;
+			}
+		}
+		$result->free();
+	}
 
-			<table class="table">
-				<thead class="thead-dark">
-					<tr>
+	$link->close();
+}
+?>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>Producto</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+</head>
+
+<body>
+	<h3>PRODUCTO</h3>
+
+	<?php if (isset($data)) : ?>
+
+		<table class="table">
+			<thead class="thead-dark">
+				<tr>
 					<th scope="col">#</th>
 					<th scope="col">Nombre</th>
 					<th scope="col">Marca</th>
@@ -65,33 +55,32 @@
 					<th scope="col">Unidades</th>
 					<th scope="col">Detalles</th>
 					<th scope="col">Imagen</th>
-					</tr>
-				</thead>
-				<tbody>
-                <?php
-                
-                    foreach($tupla as $key => $value){
-					    echo '<tr>';
-						echo '<th scope=value>' . $value['id'] . '</th>';
-						echo '<td>' . $value['nombre'] . ' </td>';
-                        echo '<td>' . $value['marca'] . ' </td>';
-                        echo '<td>' . $value['modelo'] . ' </td>';
-                        echo '<td>' . $value['precio'] . ' </td>';
-                        echo '<td>' . $value['unidades'] . ' </td>';
-                        echo '<td>' . $value['detalles'] . ' </td>';
-						echo '<td>' . "<img width= 100 height= 126 src= $value[imagen] >" . '</td>';
-					    echo "</tr>";
-                }
-                ?>
-				</tbody>
-			</table>
+				</tr>
+			</thead>
+			<tbody>
+				<?php
 
-		<?php elseif(!empty($id)) : ?>
+				foreach ($data as $key => $value) {
+					echo '<tr>';
+					echo '<th scope="value"> ' . $value["id"] . ' </th>';
+					echo '<td> ' . $value["nombre"] . '</td>';
+					echo '<td> ' . $value["marca"] . '</td>';
+					echo '<td> ' . $value["modelo"] . '</td>';
+					echo '<td> ' . $value["precio"] . '</td>';
+					echo '<td> ' . $value["unidades"] . '</td>';
+					echo '<td> ' . $value['detalles'] . '</td>';
+					echo '<td><img src=' . $value['imagen'] . ' width="200px" height="200px" /></td>';
+					echo '</tr>';
+				}
+				?>
 
-			 <script>
-                alert('El ID del producto no existe');
-             </script>
+			</tbody>
+		</table>
+	<?php endif; ?>
 
-		<?php endif; ?>
-	</body>
+	<p>
+		<a href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xhtml11" alt="Valid XHTML 1.1" height="31" width="88" /></a>
+	</p>
+</body>
+
 </html>
